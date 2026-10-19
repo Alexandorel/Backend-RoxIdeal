@@ -43,6 +43,14 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
+    public void update(String name, String description, BigDecimal price, int stock, String imageUrl) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stock = stock;
+        this.imageUrl = imageUrl;
+    }
+
     public Long getId() {
         return id;
     }
