@@ -24,14 +24,14 @@ public class JwtConfig {
     // in deployment there will be a fixed RSA in env
 
     @Bean
-    KeyPair rsaKeyPair() throws NoSuchAlgorithmException {
+    public KeyPair rsaKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
         return generator.generateKeyPair();
     }
 
     @Bean
-    JwtEncoder jwtEncoder(KeyPair keyPair) {
+    public JwtEncoder jwtEncoder(KeyPair keyPair) {
         RSAKey jwk = new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
                 .privateKey((RSAPrivateKey) keyPair.getPrivate())
                 .build();
@@ -40,7 +40,7 @@ public class JwtConfig {
     }
 
     @Bean
-    JwtDecoder jwtDecoder(KeyPair keyPair) {
+    public JwtDecoder jwtDecoder(KeyPair keyPair) {
         return NimbusJwtDecoder.withPublicKey((RSAPublicKey) keyPair.getPublic()).build();
     }
 }
