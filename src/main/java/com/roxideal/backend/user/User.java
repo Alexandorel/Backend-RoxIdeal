@@ -17,8 +17,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
     @Column(nullable = false, unique = true)
-    private String username;
+    private String email;
+
+    @Column(nullable = false)
+    private String phone;
 
     @Column(nullable = false)
     private String password;
@@ -31,8 +40,11 @@ public class User {
         // JPA
     }
 
-    public User(String username, String password, Role role) {
-        this.username = username;
+    public User(String firstName, String lastName, String email, String phone, String password, Role role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
         this.password = password;
         this.role = role;
     }
@@ -41,8 +53,20 @@ public class User {
         return id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public String getPassword() {
