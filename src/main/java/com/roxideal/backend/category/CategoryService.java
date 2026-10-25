@@ -1,5 +1,6 @@
 package com.roxideal.backend.category;
 
+import com.roxideal.backend.product.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,9 +10,11 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository repository;
+    private final ProductRepository productRepository;
 
-    public CategoryService(CategoryRepository repository) {
+    public CategoryService(CategoryRepository repository, ProductRepository productRepository) {
         this.repository = repository;
+        this.productRepository = productRepository;
     }
 
     public List<CategoryDto> findAll() {
@@ -45,6 +48,9 @@ public class CategoryService {
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new CategoryNotFoundException(id);
+        }
+        if (productRepository.existsByCategoryId(id)) {
+            throw new CategoryInUseException(id);
         }
         repository.deleteById(id);
     }

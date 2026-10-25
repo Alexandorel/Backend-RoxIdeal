@@ -1,5 +1,6 @@
 package com.roxideal.backend;
 
+import com.roxideal.backend.category.CategoryInUseException;
 import com.roxideal.backend.category.CategoryNotFoundException;
 import com.roxideal.backend.category.DuplicateCategoryException;
 import com.roxideal.backend.product.ProductNotFoundException;
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateCategoryException.class)
     public ProblemDetail handleDuplicateCategory(DuplicateCategoryException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(CategoryInUseException.class)
+    public ProblemDetail handleCategoryInUse(CategoryInUseException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 

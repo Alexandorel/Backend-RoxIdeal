@@ -1,10 +1,15 @@
 package com.roxideal.backend.product;
 
+import com.roxideal.backend.category.Category;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
@@ -31,24 +36,38 @@ public class Product {
 
     private String imageUrl;
 
+    // nullable in DB because of rows created before this column existed; required by ProductRequest
+    @Enumerated(EnumType.STRING)
+    private Unit unit;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     protected Product() {
         // JPA
     }
 
-    public Product(String name, String description, BigDecimal price, int stock, String imageUrl) {
+    public Product(String name, String description, BigDecimal price, int stock, String imageUrl,
+                   Unit unit, Category category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.unit = unit;
+        this.category = category;
     }
 
-    public void update(String name, String description, BigDecimal price, int stock, String imageUrl) {
+    public void update(String name, String description, BigDecimal price, int stock, String imageUrl,
+                       Unit unit, Category category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.unit = unit;
+        this.category = category;
     }
 
     public Long getId() {
@@ -73,5 +92,13 @@ public class Product {
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public Category getCategory() {
+        return category;
     }
 }
