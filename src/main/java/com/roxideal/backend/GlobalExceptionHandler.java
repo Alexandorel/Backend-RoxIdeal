@@ -1,5 +1,6 @@
 package com.roxideal.backend;
 
+import com.roxideal.backend.category.CategoryNotFoundException;
 import com.roxideal.backend.product.ProductNotFoundException;
 import com.roxideal.backend.user.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductNotFoundException.class)
     public ProblemDetail handleNotFound(ProductNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ProblemDetail handleCategoryNotFound(CategoryNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
