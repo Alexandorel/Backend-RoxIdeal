@@ -5,6 +5,7 @@ import com.roxideal.backend.category.CategoryNotFoundException;
 import com.roxideal.backend.category.CategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -19,8 +20,9 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<ProductDto> findAll() {
-        return repository.findAll().stream().map(ProductDto::from).toList();
+    public List<ProductDto> search(Long categoryId, String q, boolean inStock) {
+        String text = StringUtils.hasText(q) ? q.trim() : null;
+        return repository.search(categoryId, text, inStock).stream().map(ProductDto::from).toList();
     }
 
     public ProductDto findById(Long id) {
