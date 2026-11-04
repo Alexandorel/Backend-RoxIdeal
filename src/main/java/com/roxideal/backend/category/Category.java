@@ -18,16 +18,26 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(nullable = false, unique = true)
+    private String slug;
+
+    @Column(nullable = false)
+    private String title;
+
     protected Category() {
         // JPA
     }
 
-    public Category(String name) {
+    public Category(String name, String slug, String title) {
         this.name = name;
+        this.slug = slug;
+        this.title = title;
     }
 
-    public void update(String name) {
+    public void update(String name, String slug, String title) {
         this.name = name;
+        this.slug = slug;
+        this.title = title;
     }
 
     public Long getId() {
@@ -36,5 +46,13 @@ public class Category {
 
     public String getName() {
         return name;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }
