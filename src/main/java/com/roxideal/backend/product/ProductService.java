@@ -32,10 +32,15 @@ public class ProductService {
     }
 
     public ProductDto create(ProductRequest request) {
+        if (repository.existsBySku(request.sku())) {
+            throw new DuplicateSkuException(request.sku());
+        }
         Product product = new Product(
                 request.name(), request.description(), request.price(),
                 request.stock(), request.imageUrl(),
-                request.unit(), findCategory(request.categoryId()));
+                request.unit(), findCategory(request.categoryId()),
+                request.sku(), request.brand(), request.spec(), request.finish(),
+                request.tag(), request.coverage(), request.care(), request.swatch(), request.specs());
         return ProductDto.from(repository.save(product));
     }
 
@@ -43,9 +48,14 @@ public class ProductService {
     public ProductDto update(Long id, ProductRequest request) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
+        if (!product.getSku().equals(request.sku()) && repository.existsBySku(request.sku())) {
+            throw new DuplicateSkuException(request.sku());
+        }
         product.update(request.name(), request.description(), request.price(),
                 request.stock(), request.imageUrl(),
-                request.unit(), findCategory(request.categoryId()));
+                request.unit(), findCategory(request.categoryId()),
+                request.sku(), request.brand(), request.spec(), request.finish(),
+                request.tag(), request.coverage(), request.care(), request.swatch(), request.specs());
         return ProductDto.from(product);
     }
 
