@@ -31,7 +31,10 @@ public class CategoryService {
         if (repository.existsByName(request.name())) {
             throw new DuplicateCategoryException(request.name());
         }
-        return CategoryDto.from(repository.save(new Category(request.name())));
+        if (repository.existsBySlug(request.slug())) {
+            throw new DuplicateCategoryException(request.slug());
+        }
+        return CategoryDto.from(repository.save(new Category(request.name(), request.slug(), request.title())));
     }
 
     @Transactional
@@ -41,7 +44,10 @@ public class CategoryService {
         if (!category.getName().equals(request.name()) && repository.existsByName(request.name())) {
             throw new DuplicateCategoryException(request.name());
         }
-        category.update(request.name());
+        if (!category.getSlug().equals(request.slug()) && repository.existsBySlug(request.slug())) {
+            throw new DuplicateCategoryException(request.slug());
+        }
+        category.update(request.name(), request.slug(), request.title());
         return CategoryDto.from(category);
     }
 
