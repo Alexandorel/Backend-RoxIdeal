@@ -3,6 +3,7 @@ package com.roxideal.backend;
 import com.roxideal.backend.category.CategoryInUseException;
 import com.roxideal.backend.category.CategoryNotFoundException;
 import com.roxideal.backend.category.DuplicateCategoryException;
+import com.roxideal.backend.product.DuplicateSkuException;
 import com.roxideal.backend.product.ProductNotFoundException;
 import com.roxideal.backend.user.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateCategoryException.class)
     public ProblemDetail handleDuplicateCategory(DuplicateCategoryException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateSkuException.class)
+    public ProblemDetail handleDuplicateSku(DuplicateSkuException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
