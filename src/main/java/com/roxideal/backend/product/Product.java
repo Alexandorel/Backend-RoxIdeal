@@ -1,6 +1,7 @@
 package com.roxideal.backend.product;
 
 import com.roxideal.backend.category.Category;
+import com.roxideal.backend.finish.Finish;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -56,7 +57,9 @@ public class Product {
 
     private String spec;
 
-    private String finish;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "finish_id", foreignKey = @ForeignKey(name = "fk_products_finish"))
+    private Finish finish;
 
     private String tag;
 
@@ -79,14 +82,14 @@ public class Product {
     }
 
     public Product(String name, String description, BigDecimal price, int stock, String imageUrl,
-                   Unit unit, Category category, String sku, String brand, String spec, String finish,
+                   Unit unit, Category category, String sku, String brand, String spec, Finish finish,
                    String tag, BigDecimal coverage, String care, String swatch, List<ProductSpec> specs) {
         update(name, description, price, stock, imageUrl, unit, category,
                 sku, brand, spec, finish, tag, coverage, care, swatch, specs);
     }
 
     public void update(String name, String description, BigDecimal price, int stock, String imageUrl,
-                       Unit unit, Category category, String sku, String brand, String spec, String finish,
+                       Unit unit, Category category, String sku, String brand, String spec, Finish finish,
                        String tag, BigDecimal coverage, String care, String swatch, List<ProductSpec> specs) {
         this.name = name;
         this.description = description;
@@ -153,7 +156,7 @@ public class Product {
         return spec;
     }
 
-    public String getFinish() {
+    public Finish getFinish() {
         return finish;
     }
 

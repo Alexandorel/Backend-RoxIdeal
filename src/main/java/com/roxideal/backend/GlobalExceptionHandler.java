@@ -3,6 +3,7 @@ package com.roxideal.backend;
 import com.roxideal.backend.category.CategoryInUseException;
 import com.roxideal.backend.category.CategoryNotFoundException;
 import com.roxideal.backend.category.DuplicateCategoryException;
+import com.roxideal.backend.finish.FinishNotFoundException;
 import com.roxideal.backend.product.DuplicateSkuException;
 import com.roxideal.backend.product.ProductNotFoundException;
 import com.roxideal.backend.user.DuplicateEmailException;
@@ -27,6 +28,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public ProblemDetail handleCategoryNotFound(CategoryNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(FinishNotFoundException.class)
+    public ProblemDetail handleFinishNotFound(FinishNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
