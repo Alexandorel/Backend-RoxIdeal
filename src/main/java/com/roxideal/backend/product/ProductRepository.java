@@ -14,7 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
             select p from Product p
             where (:categoryId is null or p.category.id = :categoryId)
-              and (:q is null or lower(p.name) like lower(concat('%', :q, '%')))
+              and (:q is null or lower(p.name) like lower(concat('%', cast(:q as String), '%')))
               and (:inStock = false or p.stock > 0)
             order by p.name
             """)
