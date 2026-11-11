@@ -10,4 +10,8 @@ public record RegisterRequest(
         @NotBlank @Email String email,
         @NotBlank String phone,
         @NotBlank @Size(min = 6) String password) {
+
+    public RegisterRequest {
+        email = User.normalizeEmail(email);
+    }
 }
