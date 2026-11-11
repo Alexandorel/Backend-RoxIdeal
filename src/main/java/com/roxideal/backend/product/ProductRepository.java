@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @EntityGraph(attributePaths = {"category", "specs"})
+    @EntityGraph(attributePaths = {"category", "finish", "specs"})
     @Query("""
             select p from Product p
             where (:categoryId is null or p.category.id = :categoryId)
@@ -22,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                          @Param("q") String q,
                          @Param("inStock") boolean inStock);
 
-    @EntityGraph(attributePaths = {"category", "specs"})
+    @EntityGraph(attributePaths = {"category", "finish", "specs"})
     Optional<Product> findById(Long id);
 
     boolean existsByCategoryId(Long categoryId);

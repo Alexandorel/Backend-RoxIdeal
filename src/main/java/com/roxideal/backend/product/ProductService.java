@@ -3,6 +3,9 @@ package com.roxideal.backend.product;
 import com.roxideal.backend.category.Category;
 import com.roxideal.backend.category.CategoryNotFoundException;
 import com.roxideal.backend.category.CategoryRepository;
+import com.roxideal.backend.finish.Finish;
+import com.roxideal.backend.finish.FinishNotFoundException;
+import com.roxideal.backend.finish.FinishRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -14,10 +17,13 @@ public class ProductService {
 
     private final ProductRepository repository;
     private final CategoryRepository categoryRepository;
+    private final FinishRepository finishRepository;
 
-    public ProductService(ProductRepository repository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository repository, CategoryRepository categoryRepository,
+                          FinishRepository finishRepository) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
+        this.finishRepository = finishRepository;
     }
 
     public List<ProductDto> search(Long categoryId, String q, boolean inStock) {
@@ -39,7 +45,7 @@ public class ProductService {
                 request.name(), request.description(), request.price(),
                 request.stock(), request.imageUrl(),
                 request.unit(), findCategory(request.categoryId()),
-                request.sku(), request.brand(), request.spec(), request.finish(),
+                request.sku(), request.brand(), request.spec(), findFinish(request.finishId()),
                 request.tag(), request.coverage(), request.care(), request.swatch(), request.specs());
         return ProductDto.from(repository.save(product));
     }
@@ -54,7 +60,7 @@ public class ProductService {
         product.update(request.name(), request.description(), request.price(),
                 request.stock(), request.imageUrl(),
                 request.unit(), findCategory(request.categoryId()),
-                request.sku(), request.brand(), request.spec(), request.finish(),
+                request.sku(), request.brand(), request.spec(), findFinish(request.finishId()),
                 request.tag(), request.coverage(), request.care(), request.swatch(), request.specs());
         return ProductDto.from(product);
     }
@@ -69,5 +75,13 @@ public class ProductService {
     private Category findCategory(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException(id));
+    }
+
+    private Finish findFinish(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return finishRepository.findById(id)
+                .orElseThrow(() -> new FinishNotFoundException(id));
     }
 }

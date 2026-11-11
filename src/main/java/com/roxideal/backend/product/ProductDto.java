@@ -2,6 +2,8 @@ package com.roxideal.backend.product;
 
 import com.roxideal.backend.category.Category;
 import com.roxideal.backend.category.CategoryDto;
+import com.roxideal.backend.finish.Finish;
+import com.roxideal.backend.finish.FinishDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,7 +21,7 @@ public record ProductDto(
         String sku,
         String brand,
         String spec,
-        String finish,
+        FinishDto finish,
         String tag,
         BigDecimal coverage,
         String care,
@@ -28,6 +30,7 @@ public record ProductDto(
 
     public static ProductDto from(Product product) {
         Category category = product.getCategory();
+        Finish finish = product.getFinish();
         return new ProductDto(
                 product.getId(),
                 product.getName(),
@@ -40,7 +43,7 @@ public record ProductDto(
                 product.getSku(),
                 product.getBrand(),
                 product.getSpec(),
-                product.getFinish(),
+                finish == null ? null : FinishDto.from(finish),
                 product.getTag(),
                 product.getCoverage(),
                 product.getCare(),
