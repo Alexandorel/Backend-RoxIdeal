@@ -20,7 +20,7 @@ public record ProductRequest(
         @NotBlank String sku,
         String brand,
         String spec,
-        String finish,
+        Long finishId,
         String tag,
         @Positive BigDecimal coverage,
         String care,
