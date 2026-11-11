@@ -61,6 +61,28 @@ class AuthServiceTest {
     }
 
     @Test
+    void register_normalizesEmail() {
+        when(repository.existsByEmail("ana@mail.com")).thenReturn(false);
+        when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        TokenResponse response = service.register(
+                new RegisterRequest("Ana", "Pop", "  Ana@Mail.COM ", "0700", "parola123"));
+
+        assertEquals("ana@mail.com", jwtDecoder.decode(response.token()).getSubject());
+    }
+
+    @Test
+    void login_emailIsCaseInsensitive() {
+        User user = new User("Ana", "Pop", "ana@mail.com", "0700",
+                passwordEncoder.encode("parola123"), Role.CUSTOMER);
+        when(repository.findByEmail("ana@mail.com")).thenReturn(Optional.of(user));
+
+        TokenResponse response = service.login(new LoginRequest(" ANA@mail.com", "parola123"));
+
+        assertEquals("ana@mail.com", jwtDecoder.decode(response.token()).getSubject());
+    }
+
+    @Test
     void login_wrongPassword_throws() {
         User user = new User("Ana", "Pop", "ana@mail.com", "0700",
                 passwordEncoder.encode("parola123"), Role.CUSTOMER);
