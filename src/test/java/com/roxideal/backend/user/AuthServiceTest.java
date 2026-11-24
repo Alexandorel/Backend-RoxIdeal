@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.security.KeyPair;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
+
+    static final Duration TTL = Duration.ofHours(12);
 
     @Mock
     UserRepository repository;
@@ -48,8 +51,8 @@ class AuthServiceTest {
         when(repository.existsByEmail("ana@mail.com")).thenReturn(false);
         when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        TokenResponse response = service.register(
-                new RegisterRequest("Ana", "Pop", "ana@mail.com", "0700", "parola123"));
+        AuthResult response = service.register(
+                new RegisterRequest("Ana", "Pop", "ana@mail.com", "0700", "parola123"), TTL);
 
         Jwt jwt = jwtDecoder.decode(response.token());
         assertEquals("ana@mail.com", jwt.getSubject());
@@ -61,7 +64,7 @@ class AuthServiceTest {
         when(repository.existsByEmail("ana@mail.com")).thenReturn(true);
 
         assertThrows(DuplicateEmailException.class, () -> service.register(
-                new RegisterRequest("Ana", "Pop", "ana@mail.com", "0700", "parola123")));
+                new RegisterRequest("Ana", "Pop", "ana@mail.com", "0700", "parola123"), TTL));
     }
 
     @Test
@@ -69,8 +72,8 @@ class AuthServiceTest {
         when(repository.existsByEmail("ana@mail.com")).thenReturn(false);
         when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        TokenResponse response = service.register(
-                new RegisterRequest("Ana", "Pop", "  Ana@Mail.COM ", "0700", "parola123"));
+        AuthResult response = service.register(
+                new RegisterRequest("Ana", "Pop", "  Ana@Mail.COM ", "0700", "parola123"), TTL);
 
         assertEquals("ana@mail.com", jwtDecoder.decode(response.token()).getSubject());
     }
@@ -81,7 +84,7 @@ class AuthServiceTest {
                 passwordEncoder.encode("parola123"), Role.CUSTOMER);
         when(repository.findByEmail("ana@mail.com")).thenReturn(Optional.of(user));
 
-        TokenResponse response = service.login(new LoginRequest(" ANA@mail.com", "parola123"));
+        AuthResult response = service.login(new LoginRequest(" ANA@mail.com", "parola123"), TTL);
 
         assertEquals("ana@mail.com", jwtDecoder.decode(response.token()).getSubject());
     }
@@ -93,7 +96,7 @@ class AuthServiceTest {
         when(repository.findByEmail("ana@mail.com")).thenReturn(Optional.of(user));
 
         assertThrows(BadCredentialsException.class,
-                () -> service.login(new LoginRequest("ana@mail.com", "gresit")));
+                () -> service.login(new LoginRequest("ana@mail.com", "gresit"), TTL));
     }
 
     @Test
@@ -101,7 +104,7 @@ class AuthServiceTest {
         when(repository.findByEmail("nimeni@mail.com")).thenReturn(Optional.empty());
 
         assertThrows(BadCredentialsException.class,
-                () -> service.login(new LoginRequest("nimeni@mail.com", "parola123")));
+                () -> service.login(new LoginRequest("nimeni@mail.com", "parola123"), TTL));
         verify(passwordEncoder).matches(eq("parola123"), anyString());
     }
 
@@ -111,10 +114,23 @@ class AuthServiceTest {
                 passwordEncoder.encode("parola123"), Role.ADMIN);
         when(repository.findByEmail("admin@mail.com")).thenReturn(Optional.of(admin));
 
-        TokenResponse response = service.login(new LoginRequest("admin@mail.com", "parola123"));
+        AuthResult response = service.login(new LoginRequest("admin@mail.com", "parola123"), TTL);
 
         Jwt jwt = jwtDecoder.decode(response.token());
         assertEquals("admin@mail.com", jwt.getSubject());
         assertEquals(List.of("ADMIN"), jwt.getClaimAsStringList("roles"));
+        assertEquals(Role.ADMIN, response.user().role());
+    }
+
+    @Test
+    void login_tokenExpiresAfterRequestedTtl() {
+        User user = new User("Ana", "Pop", "ana@mail.com", "0700",
+                passwordEncoder.encode("parola123"), Role.CUSTOMER);
+        when(repository.findByEmail("ana@mail.com")).thenReturn(Optional.of(user));
+
+        AuthResult response = service.login(new LoginRequest("ana@mail.com", "parola123"), Duration.ofHours(2));
+
+        Jwt jwt = jwtDecoder.decode(response.token());
+        assertEquals(Duration.ofHours(2), Duration.between(jwt.getIssuedAt(), jwt.getExpiresAt()));
     }
 }
