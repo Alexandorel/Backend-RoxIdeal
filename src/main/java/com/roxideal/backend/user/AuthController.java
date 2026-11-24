@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,12 @@ public class AuthController {
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest request) {
         return new TokenResponse(service.login(request, ANDROID_TTL).token());
+    }
+
+    @GetMapping("/csrf")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void csrf(CsrfToken token) {
+        token.getToken();
     }
 
     @PostMapping("/web/register")

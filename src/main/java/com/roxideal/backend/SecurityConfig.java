@@ -2,12 +2,12 @@ package com.roxideal.backend;
 
 import com.roxideal.backend.user.AuthCookie;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,13 +20,17 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.util.WebUtils;
 
+import java.util.Set;
+
 @Configuration
 public class SecurityConfig {
+
+    private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS", "TRACE");
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.spa().requireCsrfProtectionMatcher(this::requiresCsrf))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
@@ -48,6 +52,14 @@ public class SecurityConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    
+    private boolean requiresCsrf(HttpServletRequest request) {
+        if (SAFE_METHODS.contains(request.getMethod())) {
+            return false;
+        }
+        return WebUtils.getCookie(request, AuthCookie.NAME) != null
+                || request.getRequestURI().startsWith("/api/auth/web/");
     }
 
     private BearerTokenResolver headerOrCookieTokenResolver() {
