@@ -19,7 +19,7 @@ public class AdminSeeder implements CommandLineRunner {
                        @Value("${app.admin.password:}") String adminPassword) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
-        this.adminEmail = adminEmail;
+        this.adminEmail = User.normalizeEmail(adminEmail);
         this.adminPassword = adminPassword;
     }
 
