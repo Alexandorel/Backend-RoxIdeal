@@ -20,4 +20,8 @@ public final class AuthCookie {
                 .maxAge(maxAge)
                 .build();
     }
+
+    public static ResponseCookie clear() {
+        return create("", Duration.ZERO);
+    }
 }
