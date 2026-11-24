@@ -19,6 +19,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,7 +31,7 @@ class AuthServiceTest {
     @Mock
     UserRepository repository;
 
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    PasswordEncoder passwordEncoder = spy(new BCryptPasswordEncoder());
     JwtDecoder jwtDecoder;
     AuthService service;
 
@@ -90,6 +94,15 @@ class AuthServiceTest {
 
         assertThrows(BadCredentialsException.class,
                 () -> service.login(new LoginRequest("ana@mail.com", "gresit")));
+    }
+
+    @Test
+    void login_unknownEmail_stillChecksPasswordWithBcrypt() {
+        when(repository.findByEmail("nimeni@mail.com")).thenReturn(Optional.empty());
+
+        assertThrows(BadCredentialsException.class,
+                () -> service.login(new LoginRequest("nimeni@mail.com", "parola123")));
+        verify(passwordEncoder).matches(eq("parola123"), anyString());
     }
 
     @Test

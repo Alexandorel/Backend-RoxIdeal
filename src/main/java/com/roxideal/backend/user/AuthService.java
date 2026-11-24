@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -17,11 +19,13 @@ public class AuthService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
+    private final String dummyHash;
 
     public AuthService(UserRepository repository, PasswordEncoder passwordEncoder, JwtEncoder jwtEncoder) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
+        this.dummyHash = passwordEncoder.encode(UUID.randomUUID().toString());
     }
 
     public TokenResponse register(RegisterRequest request) {
@@ -35,12 +39,13 @@ public class AuthService {
     }
 
     public TokenResponse login(LoginRequest request) {
-        User user = repository.findByEmail(request.email())
-                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+        Optional<User> user = repository.findByEmail(request.email());
+        String hash = user.map(User::getPassword).orElse(dummyHash);
+        boolean passwordMatches = passwordEncoder.matches(request.password(), hash);
+        if (user.isEmpty() || !passwordMatches) {
             throw new BadCredentialsException("Invalid email or password");
         }
-        return issueToken(user);
+        return issueToken(user.get());
     }
 
     private TokenResponse issueToken(User user) {
